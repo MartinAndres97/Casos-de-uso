@@ -1,0 +1,179 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Marcello V1 — Diagrama de casos de uso (UML 2.5.1)</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:#fff;color:#0f172a;font:14px Inter,"Segoe UI",system-ui,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 16px;border-bottom:1px solid #e2e8f0;position:sticky;top:env(safe-area-inset-top,0px);background:#fff;z-index:5}
+header h1{font-size:15px;margin:0 auto 0 0}
+button,select{font:inherit;padding:6px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;cursor:pointer}
+button:hover{border-color:#2563eb;color:#2563eb}
+main{display:grid;grid-template-columns:1fr 330px;gap:0}
+#cv{overflow-x:auto;padding:8px}
+#cv svg{width:100%;height:auto;min-width:900px;display:block}
+aside{border-left:1px solid #e2e8f0;padding:16px;font-size:13px;line-height:1.5;position:sticky;top:60px;align-self:start;max-height:calc(100vh - 60px);overflow:auto}
+aside h2{font-size:16px;margin:6px 0}aside h4{margin:12px 0 2px;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.b{display:inline-block;background:#f1f5f9;border-radius:6px;padding:1px 7px;font-size:11px;font-weight:600;color:#334155}
+@media(max-width:900px){main{grid-template-columns:1fr}aside{position:static;border-left:0;border-top:1px solid #e2e8f0;max-height:none}}
+</style></head><body>
+<header><h1>Marcello V1 · Diagrama de casos de uso <span class="b">UML 2.5.1</span></h1>
+<button id="full">Vista Completa</button>
+<select id="fm"><option value="">Módulo: todos</option></select>
+<select id="fa"><option value="">Actor: todos</option></select>
+<button id="dsvg">Descargar SVG Vectorial</button><button id="dpng">Descargar PNG (300 DPI)</button></header>
+<main><div id="cv"></div><aside id="p"><h2>Ficha técnica</h2><p style="color:#64748b">Pasa el ratón o haz clic sobre un actor, caso de uso o módulo para inspeccionarlo.</p></aside></main>
+<script>
+const NS='http://www.w3.org/2000/svg';
+const $=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p&&p.appendChild(e);return e};
+const pad=n=>String(n).padStart(2,'0'),cid=n=>'CU-'+pad(n),aid=n=>'ACT-'+pad(n);
+const TX=(p,x,y,s,a={})=>{const e=$('text',{x,y,'text-anchor':'middle',...a},p);e.textContent=s;return e};
+const wrap=(s,n)=>{const o=[];let l='';s.split(' ').forEach(w=>{if((l+' '+w).trim().length>n){o.push(l);l=w}else l=(l+' '+w).trim()});o.push(l);return o};
+const M={M1:'Modelado del Tejido',M2:'Datos Genéticos y Celulares',M3:'Simulación',M4:'Validación',M5:'Versionado y Trazabilidad',M6:'Interoperabilidad',M7:'Seguridad y Acceso',M8:'Visualización'};
+const MC={M1:'#2563eb',M2:'#059669',M3:'#d97706',M4:'#db2777',M5:'#7c3aed',M6:'#0891b2',M7:'#475569',M8:'#65a30d'};
+const BP={M1:'Separar geometría/composición celular de los parámetros de impresión (Bio-CAD) y mantener la configuración declarativa y versionable, como los XML de PhysiCell o los proyectos de CompuCell3D.',
+M2:'Identificadores estándar (HGNC, Ensembl, UniProt, Cell Ontology), importación por API desde repositorios abiertos y vínculo con redes regulatorias en SBML.',
+M3:'Motor aislado del pre-procesamiento; semilla aleatoria, paso de tiempo y versión del motor siempre explícitos; escenarios como barridos paramétricos reproducibles.',
+M4:'Criterios de aceptación y métricas definidos antes de comparar in-silico vs in-vitro; revisión de especialista registrada, al estilo de las suites de verificación de Chaste.',
+M5:'Provenance tipo W3C PROV / RO-Crate: hash de entradas, parámetros, versión del motor y semilla ligados a cada resultado.',
+M6:'Formatos abiertos de intercambio (SBML, MultiCellDS, STL/3MF, G-code, VTK/HDF5, OME-TIFF) y esquemas validados en cada frontera con sistemas externos.',
+M7:'RBAC con mínimo privilegio, bitácora de accesos de solo-anexado y pseudonimización de datos sensibles antes de compartir.',
+M8:'Visualización 3D desacoplada del motor (salidas VTK/ParaView) con campos, tipos celulares y series temporales sobre los mismos datos versionados.'};
+const C=[[1,'Iniciar sesión','M7'],[2,'Gestionar usuarios y roles','M7'],[3,'Consultar bitácora de accesos','M7'],[4,'Anonimizar datos sensibles','M7'],
+[5,'Gestionar modelo de tejido','M1','imágenes'],[6,'Definir estructura y composición del tejido','M1'],[7,'Definir microentorno y propiedades del tejido','M1'],[8,'Definir parámetros de bioimpresión','M1'],[9,'Cargar imágenes del tejido','M1'],
+[14,'Ejecutar simulación','M3','datos genéticos y celulares'],[15,'Evaluar escenarios modificando parámetros','M3'],
+[10,'Consultar y analizar información genética y celular','M2'],[11,'Importar información desde bases de datos externas','M2'],[12,'Registrar y modificar información genética y celular','M2'],[13,'Integrar información genética y celular en la simulación','M2'],
+[20,'Guardar versión de modelo y resultados','M5'],[21,'Consultar y comparar versiones','M5'],[22,'Registrar trazabilidad de la simulación','M5'],
+[16,'Visualizar resultados','M8'],[17,'Validar resultados','M4'],[18,'Generar reporte de validación','M4'],[19,'Registrar revisión de especialista','M4'],
+[23,'Exportar modelos, parámetros y resultados','M6'],[24,'Intercambiar datos con equipos de bioimpresión','M6'],[25,'Intercambiar datos con herramientas externas','M6']];
+const A=[[1,'Usuario del sistema','abs'],[2,'Especialista en modelado y simulación','h'],[3,'Especialista en datos genéticos y biomédicos','h'],[4,'Especialista en calidad y validación','h'],[5,'Administrador','h'],
+[6,'Bases de datos científicas y biomédicas','x','EXT-01'],[7,'Equipos y plataformas de bioimpresión 3D','x','EXT-02'],[8,'Herramientas de diseño, simulación y bioinformática','x','EXT-03']];
+const AS=[[1,1,'RF-001'],[2,5,'RF-006, RF-015'],[2,6,'RF-007, RF-008, RF-011, RF-013'],[2,7,'RF-009, RF-012, RF-014'],[2,8,'RF-010'],[2,9,'RF-016'],[2,13,'RF-020'],[2,14,'RF-024, RF-026'],[2,15,'RF-025'],[2,16,'RF-044'],[2,20,'RF-033'],[2,21,'RF-034, RF-035'],[2,23,'RF-039, RF-043'],[2,24,'RF-040'],[2,25,'RF-041, RF-042'],[3,4,'RF-005'],[3,10,'RF-017, RF-021, RF-022'],[3,11,'RF-018'],[3,12,'RF-019, RF-023'],[4,16,'RF-044'],[4,17,'RF-027 a RF-030'],[4,21,'RF-034, RF-035'],[4,23,'RF-039, RF-043'],[5,2,'RF-002, RF-003'],[5,3,'RF-004'],[6,11,'RF-018'],[7,24,'RF-040'],[8,25,'RF-041, RF-042']];
+const INC=[[14,22,'RN-02, RF-036 a RF-038'],[15,20,'RN-03, RF-033']];
+const EXT=[[13,14,'Extension point: datos genéticos y celulares'],[9,5,'Extension point: imágenes'],[18,17,'RF-031'],[19,17,'RF-032']];
+const E=[];
+[2,3,4,5].forEach(n=>E.push({type:'gn',a:aid(n),b:'ACT-01',rf:'RN-01'}));
+AS.forEach(([a,c,r])=>E.push({type:'as',a:aid(a),b:cid(c),rf:r}));
+INC.forEach(([a,b,r])=>E.push({type:'inc',a:cid(a),b:cid(b),rf:r}));
+EXT.forEach(([a,b,r])=>E.push({type:'ex',a:cid(a),b:cid(b),rf:r}));
+
+/* layout */
+const NODE={},mods=[],CW=400,OW=320,colX={L:330,R:750},yy={L:90,R:90};
+[['L',['M7','M1','M3']],['R',['M2','M5','M8','M4','M6']]].forEach(([c,ms])=>ms.forEach(m=>{
+ let y=yy[c];const top=y;y+=40;
+ C.filter(k=>k[2]==m).forEach(k=>{const h=k[3]?76:54;NODE[cid(k[0])]={kind:'c',col:c,mod:m,x:colX[c]+CW/2,y:y+h/2,rx:OW/2,ry:h/2,k};y+=h+12});
+ mods.push({m,x:colX[c],y:top,h:y-top+2});yy[c]=y+22}));
+const W=1380,SB=Math.max(yy.L,yy.R),H=SB+120;
+const AY={2:650,3:450,4:870,5:260};
+A.forEach(a=>{const n=a[0];NODE[aid(n)]={kind:a[2]=='x'?'x':'h',x:a[2]=='x'?1285:200,y:a[2]=='x'?0:(n==1?100:AY[n]),a}});
+NODE['ACT-06'].y=NODE['CU-11'].y;NODE['ACT-07'].y=NODE['CU-24'].y;NODE['ACT-08'].y=NODE['CU-25'].y;
+/* ports */
+const sg=x=>x=='R'?1:-1;
+E.forEach(e=>{if(e.type=='gn')return;const a=NODE[e.a],b=NODE[e.b];
+ if(e.type=='as'){if(a.kind=='x'){e.sa='L';e.sb='R'}else{e.sa='R';e.sb='L'}}
+ else if(a.col!=b.col){e.sa=a.col=='L'?'R':'L';e.sb=a.col=='L'?'L':'R'}else{e.sa=e.sb=a.col=='L'?'L':'R';e.same=1}});
+function P(id,s,i,n){const o=NODE[id],dy=(i-(n-1)/2)*(o.kind=='c'?9:4);
+ if(o.kind=='c'){const q=Math.sqrt(Math.max(0,1-(dy/o.ry)**2));return[o.x+sg(s)*o.rx*q,o.y+dy]}
+ if(o.kind=='x')return[o.x+sg(s)*70,o.y+dy];return[o.x+sg(s)*36,o.y+dy-6]}
+const G={};E.filter(e=>e.sa).forEach(e=>[['a',e.sa,e.b],['b',e.sb,e.a]].forEach(([w,s,o])=>(G[e[w]+s]??=[]).push({e,w,oy:NODE[o].y})));
+Object.values(G).forEach(l=>{l.sort((p,q)=>p.oy-q.oy);l.forEach((p,i)=>{p.e['p'+p.w]=P(p.e[p.w],p.e['s'+p.w],i,l.length)})});
+
+/* svg */
+const svg=$('svg',{viewBox:`0 0 ${W} ${H}`,xmlns:NS});
+const st=$('style',{},svg);st.textContent=`text{font-family:Inter,"Segoe UI",system-ui,sans-serif}
+.l{fill:none;transition:all .15s}.as .l{stroke:#475569;stroke-width:1.1}.gn .l{stroke:#334155;stroke-width:1.5}.inc .l{stroke:#0e7490;stroke-width:1.5;stroke-dasharray:6 4}.ex .l{stroke:#7c3aed;stroke-width:1.5;stroke-dasharray:6 4}
+.g{transition:opacity .15s;cursor:pointer}.dim{opacity:.12}.edge.hl .l{stroke:#2563eb!important;stroke-width:2.4}.node.hl .sh{stroke:#2563eb!important;stroke-width:2.6}.hl .l2{stroke:#2563eb!important}.edge{cursor:default}`;
+const defs=$('defs',{},svg);
+defs.innerHTML=`<marker id="tri" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="10" markerHeight="10" orient="auto"><path d="M0,0L10,5L0,10z" fill="#fff" stroke="#334155" stroke-width="1.2"/></marker>
+<marker id="oi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1,1L9,5L1,9" fill="none" stroke="#0e7490" stroke-width="1.4"/></marker>
+<marker id="oe" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1,1L9,5L1,9" fill="none" stroke="#7c3aed" stroke-width="1.4"/></marker>
+<filter id="sd" x="-10%" y="-20%" width="120%" height="150%"><feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0f172a" flood-opacity=".12"/></filter>`;
+$('rect',{width:W,height:H,fill:'#fff'},svg);
+TX(svg,W/2,24,'Marcello V1 — Diagrama de casos de uso (UML 2.5.1)',{'font-size':15,'font-weight':700,fill:'#0f172a'});
+$('rect',{x:290,y:44,width:890,height:SB-30,rx:18,fill:'#fff',stroke:'#334155','stroke-width':1.6},svg);
+TX(svg,735,72,'Marcello V1',{'font-size':18,'font-weight':700,fill:'#0f172a'});
+const gM=$('g',{},svg),gE=$('g',{},svg),gH=$('g',{},svg),gN=$('g',{},svg),EL=[],NL={},ML={};
+mods.forEach(m=>{const g=$('g',{class:'g mod','data-m':m.m},gM);ML[m.m]=g;
+ $('rect',{x:m.x,y:m.y,width:CW,height:m.h,rx:14,fill:MC[m.m],'fill-opacity':.05,stroke:MC[m.m],'stroke-opacity':.5},g)});
+E.forEach((e,i)=>{const g=$('g',{class:'g edge '+e.type},gE);EL[i]=g;e.g=g;
+ if(e.type=='gn'){const a=NODE[e.a],y=a.y;e.d=`M${a.x-20},${y}H105V100H176`;$('path',{class:'l',d:e.d,'marker-end':'url(#tri)'},g);return}
+ const [x1,y1]=e.pa,[x2,y2]=e.pb,dx=e.same?60:Math.max(40,Math.abs(x2-x1)*.45),c1=[x1+sg(e.sa)*dx,y1],c2=[x2+sg(e.sb)*dx,y2];
+ $('path',{class:'l',d:`M${x1} ${y1}C${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${x2} ${y2}`,'marker-end':e.type=='inc'?'url(#oi)':e.type=='ex'?'url(#oe)':''},g);
+ if(e.type=='inc'||e.type=='ex'){const mx=(x1+3*c1[0]+3*c2[0]+x2)/8,my=(y1+3*c1[1]+3*c2[1]+y2)/8,col=e.type=='inc'?'#0e7490':'#7c3aed';
+  $('rect',{x:mx-31,y:my-9,width:62,height:18,rx:9,fill:'#fff',stroke:col,'stroke-width':.8},g);
+  TX(g,mx,my+3.8,e.type=='inc'?'«include»':'«extend»',{'font-size':10.5,fill:col,'font-weight':600})}});
+mods.forEach(m=>{const g=$('g',{class:'g mod','data-m':m.m},gH);ML[m.m+'h']=g;
+ $('rect',{x:m.x+10,y:m.y+8,width:CW-20,height:26,rx:8,fill:'#fff',stroke:MC[m.m],'stroke-opacity':.5},g);
+ $('rect',{x:m.x+10,y:m.y+8,width:34,height:26,rx:8,fill:MC[m.m]},g);
+ TX(g,m.x+27,m.y+25.5,m.m,{'font-size':11,'font-weight':700,fill:'#fff'});
+ TX(g,m.x+52+(CW-72)/2-8,m.y+25.5,M[m.m],{'font-size':12.5,'font-weight':600,fill:MC[m.m]})});
+/* nodes */
+Object.entries(NODE).forEach(([id,o])=>{const g=$('g',{class:'g node','data-id':id},gN);NL[id]=g;
+ if(o.kind=='c'){const k=o.k,c=MC[o.mod];
+  $('ellipse',{class:'sh',cx:o.x,cy:o.y,rx:o.rx,ry:o.ry,fill:'#fff',stroke:c,'stroke-width':1.5,filter:'url(#sd)'},g);
+  const L=wrap(k[1],34);
+  if(k[3]){TX(g,o.x,o.y-22,id,{'font-size':9.5,'font-weight':700,fill:c});TX(g,o.x,o.y-6,k[1],{'font-size':12.5,'font-weight':600,fill:'#0f172a'});
+   const q=Math.sqrt(1-(6/o.ry)**2);$('line',{class:'l2',x1:o.x-o.rx*q,x2:o.x+o.rx*q,y1:o.y+6,y2:o.y+6,stroke:c,'stroke-opacity':.6},g);
+   TX(g,o.x,o.y+20,'extension points',{'font-size':9.5,fill:'#64748b','font-style':'italic'});TX(g,o.x,o.y+32,k[3],{'font-size':10.5,fill:'#334155'})}
+  else{const y0=o.y-(L.length==1?9:14);TX(g,o.x,y0,id,{'font-size':9.5,'font-weight':700,fill:c});L.forEach((s,i)=>TX(g,o.x,y0+15+i*13.5,s,{'font-size':12.5,'font-weight':600,fill:'#0f172a'}))}}
+ else if(o.kind=='x'){$('rect',{class:'sh',x:o.x-70,y:o.y-34,width:140,height:68,rx:10,fill:'#f8fafc',stroke:'#334155','stroke-width':1.4,filter:'url(#sd)'},g);
+  TX(g,o.x,o.y-20,o.a[3]?aid(o.a[0])+' · '+o.a[3]:'',{'font-size':9.5,'font-weight':700,fill:'#475569'});
+  const L=wrap(o.a[1],24);L.forEach((s,i)=>TX(g,o.x,o.y-6+i*12.5,s,{'font-size':11,'font-weight':600,fill:'#0f172a'}));TX(g,o.x,o.y+46,'«system»',{'font-size':10,fill:'#64748b','font-style':'italic'})}
+ else{const ab=id=='ACT-01',x=o.x,y=o.y,sa={class:'sh',stroke:'#334155','stroke-width':1.6,fill:'none','stroke-dasharray':ab?'4 3':''};
+  $('circle',{...sa,cx:x,cy:y-26,r:8,fill:'#fff'},g);[[x,y-18,x,y+8],[x-16,y-10,x+16,y-10],[x,y+8,x-12,y+30],[x,y+8,x+12,y+30]].forEach(l=>$('line',{...sa,x1:l[0],y1:l[1],x2:l[2],y2:l[3],'stroke-linecap':'round'},g));
+  let ty=y+46;TX(g,x,ty,id,{'font-size':9.5,'font-weight':700,fill:'#475569'});ty+=13;
+  if(ab){TX(g,x,ty,'«abstract»',{'font-size':10,fill:'#64748b'});ty+=12}
+  wrap(o.a[1],22).forEach((s,i)=>TX(g,x,ty+i*13,s,{'font-size':11.5,'font-weight':600,fill:'#0f172a','font-style':ab?'italic':'normal'}))}});
+/* legend */
+const lg=$('g',{},svg),ly=H-62;$('rect',{x:20,y:ly-26,width:W-40,height:70,rx:12,fill:'#f8fafc',stroke:'#e2e8f0'},lg);
+TX(lg,50,ly-8,'LEYENDA UML 2.5.1',{'font-size':9.5,'font-weight':700,fill:'#64748b'});
+const li=(x,fn,t)=>{fn(x);TX(lg,x+(t[1]||0),ly+30,t[0],{'font-size':10.5,fill:'#334155'})};
+li(80,x=>{$('circle',{cx:x,cy:ly+4,r:5,fill:'#fff',stroke:'#334155','stroke-dasharray':'2 2'},lg);$('line',{x1:x,y1:ly+9,x2:x,y2:ly+19,stroke:'#334155','stroke-dasharray':'2 2'},lg)},['Actor abstracto']);
+li(200,x=>{$('circle',{cx:x,cy:ly+4,r:5,fill:'#fff',stroke:'#334155'},lg);$('line',{x1:x,y1:ly+9,x2:x,y2:ly+19,stroke:'#334155'},lg)},['Actor primario']);
+li(320,x=>$('rect',{x:x-14,y:ly,width:28,height:18,rx:4,fill:'#f8fafc',stroke:'#334155'},lg),['Sistema externo']);
+li(450,x=>$('line',{x1:x-25,y1:ly+9,x2:x+25,y2:ly+9,stroke:'#475569'},lg),['Asociación']);
+li(580,x=>$('line',{x1:x-25,y1:ly+9,x2:x+25,y2:ly+9,stroke:'#334155','stroke-width':1.5,'marker-end':'url(#tri)'},lg),['Generalización']);
+li(720,x=>$('line',{x1:x-25,y1:ly+9,x2:x+25,y2:ly+9,stroke:'#0e7490','stroke-width':1.5,'stroke-dasharray':'6 4','marker-end':'url(#oi)'},lg),['«include» (base → incluido)']);
+li(900,x=>$('line',{x1:x-25,y1:ly+9,x2:x+25,y2:ly+9,stroke:'#7c3aed','stroke-width':1.5,'stroke-dasharray':'6 4','marker-end':'url(#oe)'},lg),['«extend» (extensión → base)']);
+li(1100,x=>{$('ellipse',{cx:x,cy:ly+9,rx:38,ry:14,fill:'#fff',stroke:'#2563eb'},lg);$('line',{x1:x-35,x2:x+35,y1:ly+10,y2:ly+10,stroke:'#2563eb'},lg);TX(lg,x,ly+7,'CU',{'font-size':9,fill:'#334155'});TX(lg,x,ly+20,'extension points',{'font-size':7.5,fill:'#64748b','font-style':'italic'})},['Compartimento Extension Points']);
+document.getElementById('cv').appendChild(svg);
+
+/* interaction */
+let lock=null;
+function rel(s){const ids=s.t=='mod'?C.filter(k=>k[2]==s.m).map(k=>cid(k[0])):[s.id],src=new Set(ids),ns=new Set(ids),es=new Set();
+ const child=s.t=='node'&&E.some(e=>e.type=='gn'&&e.a==s.id);if(child)src.add('ACT-01');
+ E.forEach((e,i)=>{if(!(src.has(e.a)||src.has(e.b)))return;if(e.type=='gn'&&child&&e.a!=s.id)return;es.add(i);ns.add(e.a);ns.add(e.b)});return{ns,es}}
+function focus(s){const g=Object.values(NL).concat(EL,Object.values(ML));
+ if(!s){g.forEach(x=>x.classList.remove('dim','hl'));return}
+ const{ns,es}=rel(s),mset=new Set([...ns].filter(i=>NODE[i].kind=='c').map(i=>NODE[i].mod));
+ Object.entries(NL).forEach(([i,x])=>{x.classList.toggle('dim',!ns.has(i));x.classList.toggle('hl',ns.has(i))});
+ EL.forEach((x,i)=>{x.classList.toggle('dim',!es.has(i));x.classList.toggle('hl',es.has(i))});
+ Object.keys(M).forEach(m=>[ML[m],ML[m+'h']].forEach(x=>x.classList.toggle('dim',!mset.has(m)&&!(s.t=='mod'&&s.m==m))))}
+const nm=i=>i.startsWith('CU')?i+' '+NODE[i].k[1]:i+' '+NODE[i].a[1];
+function panel(s){const p=document.getElementById('p');let h='';
+ if(s.t=='mod'){const l=C.filter(k=>k[2]==s.m);h=`<span class="b">${s.m}</span><h2>${M[s.m]}</h2><h4>Casos de uso</h4>${l.map(k=>cid(k[0])+' · '+k[1]).join('<br>')}<h4>Buenas prácticas aplicadas</h4>${BP[s.m]}`}
+ else if(s.id.startsWith('CU')){const o=NODE[s.id],k=o.k,as=E.filter(e=>e.type=='as'&&e.b==s.id),rl=E.filter(e=>(e.type=='inc'||e.type=='ex')&&(e.a==s.id||e.b==s.id));
+  const rt=rl.map(e=>e.a==s.id?(e.type=='inc'?`incluye a <b>${nm(e.b)}</b>`:`extiende a <b>${nm(e.b)}</b>`):(e.type=='inc'?`es incluido por <b>${nm(e.a)}</b>`:`es extendido por <b>${nm(e.a)}</b>`));
+  h=`<span class="b">${s.id}</span> <span class="b" style="color:${MC[o.mod]}">${o.mod} · ${M[o.mod]}</span><h2>${k[1]}</h2>
+<h4>Actor(es) asociados</h4>${as.length?as.map(e=>`${nm(e.a)}`).join('<br>'):'Sin asociación directa con actores'}
+<h4>Requisitos (RF/RN)</h4>${[...as.map(e=>e.rf),...rl.map(e=>e.rf)].join('; ')||'—'}
+<h4>Descripción funcional</h4>Caso de uso del módulo ${M[o.mod]}${rt.length?'; '+rt.join('; '):''}.${k[3]?` Declara el extension point «${k[3]}».`:''}
+<h4>Buenas prácticas aplicadas</h4>${BP[o.mod]}`}
+ else{const a=NODE[s.id].a,as=E.filter(e=>e.type=='as'&&e.a==s.id),inh=a[2]=='h';
+  h=`<span class="b">${s.id}</span><h2>${a[1]}</h2><span class="b">${a[2]=='abs'?'Abstracto':a[2]=='x'?'Sistema externo · '+a[3]:'Actor primario (hereda de ACT-01)'}</span>
+<h4>Casos de uso asociados</h4>${as.length?as.map(e=>`${nm(e.b)} <span style="color:#64748b">(${e.rf})</span>`).join('<br>'):'Sin asociación directa; los actores especializados la heredan (RN-01).'}${inh?'<h4>Heredado de ACT-01</h4>CU-01 Iniciar sesión (RF-001)':''}`}
+ p.innerHTML=h}
+function sync(){focus(lock)}
+svg.addEventListener('mouseover',e=>{if(lock)return;const n=e.target.closest('.node'),m=e.target.closest('.mod');focus(n?{t:'node',id:n.dataset.id}:m?{t:'mod',m:m.dataset.m}:null)});
+svg.addEventListener('mouseleave',()=>{if(!lock)focus(null)});
+svg.addEventListener('click',e=>{const n=e.target.closest('.node'),m=e.target.closest('.mod');
+ lock=n?{t:'node',id:n.dataset.id}:m?{t:'mod',m:m.dataset.m}:null;sync();if(lock)panel(lock)});
+const fm=document.getElementById('fm'),fa=document.getElementById('fa');
+Object.keys(M).forEach(m=>fm.add(new Option(m+' – '+M[m],m)));A.forEach(a=>fa.add(new Option(aid(a[0])+' – '+a[1],aid(a[0]))));
+fm.onchange=()=>{fa.value='';lock=fm.value?{t:'mod',m:fm.value}:null;sync();lock&&panel(lock)};
+fa.onchange=()=>{fm.value='';lock=fa.value?{t:'node',id:fa.value}:null;sync();lock&&panel(lock)};
+document.getElementById('full').onclick=()=>{lock=null;fm.value=fa.value='';sync()};
+/* export */
+function str(){const s=svg.cloneNode(true);s.setAttribute('width',W);s.setAttribute('height',H);s.querySelectorAll('.dim,.hl').forEach(e=>e.classList.remove('dim','hl'));return new XMLSerializer().serializeToString(s)}
+function dl(b,n){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove()}
+document.getElementById('dsvg').onclick=()=>dl(new Blob([str()],{type:'image/svg+xml'}),'marcello-v1-casos-de-uso.svg');
+document.getElementById('dpng').onclick=()=>{const im=new Image(),k=300/96;im.onload=()=>{const c=document.createElement('canvas');c.width=W*k;c.height=H*k;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.scale(k,k);x.drawImage(im,0,0,W,H);c.toBlob(b=>dl(b,'marcello-v1-casos-de-uso-300dpi.png'))};im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(str())};
+</script></body></html>
